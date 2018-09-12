@@ -1,5 +1,5 @@
 /* tc-riscv.c -- RISC-V assembler
-   Copyright (C) 2011-2017 Free Software Foundation, Inc.
+   Copyright (C) 2011-2018 Free Software Foundation, Inc.
 
    Contributed by Andrew Waterman (andrew@sifive.com).
    Based on MIPS target.
@@ -401,6 +401,7 @@ enum reg_class
 {
   RCLASS_GPR,
   RCLASS_FPR,
+  RCLASS_VPR,
   RCLASS_CSR,
   RCLASS_MAX
 };
@@ -562,6 +563,9 @@ validate_riscv_insn (const struct riscv_opcode *opc)
       case 'm':	USE_BITS (OP_MASK_RM,		OP_SH_RM);	break;
       case 's':	USE_BITS (OP_MASK_RS1,		OP_SH_RS1);	break;
       case 't':	USE_BITS (OP_MASK_RS2,		OP_SH_RS2);	break;
+      case 'f':	USE_BITS (OP_MASK_RS1,		OP_SH_RS1);	break;
+      case 'h':	USE_BITS (OP_MASK_RS2,		OP_SH_RS2);	break;
+      case 'b':	USE_BITS (OP_MASK_RD,		OP_SH_RD);	break;
       case 'P':	USE_BITS (OP_MASK_PRED,		OP_SH_PRED); break;
       case 'Q':	USE_BITS (OP_MASK_SUCC,		OP_SH_SUCC); break;
       case 'o':
@@ -641,6 +645,7 @@ md_begin (void)
   hash_reg_names (RCLASS_GPR, riscv_gpr_names_abi, NGPR);
   hash_reg_names (RCLASS_FPR, riscv_fpr_names_numeric, NFPR);
   hash_reg_names (RCLASS_FPR, riscv_fpr_names_abi, NFPR);
+  hash_reg_names (RCLASS_VPR, riscv_vpr_names_numeric, 32);
 
 #define DECLARE_CSR(name, num) hash_reg_name (RCLASS_CSR, #name, num);
 #define DECLARE_CSR_ALIAS(name, num) DECLARE_CSR(name, num);
@@ -1204,6 +1209,28 @@ riscv_handle_implicit_zero_offset (expressionS *expr, const char *s)
   return FALSE;
 }
 
+enum vector_imm {
+  highest_imm5_type,
+  lowest_imm5_type,
+  sep_by_mask_imm10_type
+};
+
+static void
+parse_vector_imm(expressionS *imm_expr, char* s, enum vector_imm v_imm) {
+
+  
+
+  switch (v_imm) {
+    case highest_imm5_type:
+      break;
+    case lowest_imm5_type:
+      break;
+    case sep_by_mask_imm10_type:
+      break;
+  }
+
+}
+
 /* This routine assembles an instruction into its binary format.  As a
    side effect, it sets the global variable imm_reloc to the type of
    relocation to do if one of the operands is an address expression.  */
@@ -1584,6 +1611,33 @@ rvc_lui:
 		}
 	      break;
 
+	    case 'b':		/* Destination register.  */
+	    case 'f':		/* Source register.  */
+	    case 'h':		/* Target register.  */
+	      if (reg_lookup (&s, RCLASS_VPR, &regno))
+		{
+		  c = *args;
+		  if (*s == ' ')
+		    ++s;
+
+		  /* Now that we have assembled one operand, we use the args
+		     string to figure out where it goes in the instruction.  */
+		  switch (c)
+		    {
+        case 'b':
+		      INSERT_OPERAND (RD, *ip, regno);
+		      break;
+		    case 'f':
+		      INSERT_OPERAND (RS1, *ip, regno);
+		      break;
+		    case 'h':
+		      INSERT_OPERAND (RS2, *ip, regno);
+		      break;
+		    }
+		  continue;
+		}
+	      break;
+
 	    case 'D':		/* Floating point rd.  */
 	    case 'S':		/* Floating point rs1.  */
 	    case 'T':		/* Floating point rs2.  */
@@ -1736,7 +1790,11 @@ md_assemble (char *str)
   expressionS imm_expr;
   bfd_reloc_code_real_type imm_reloc = BFD_RELOC_UNUSED;
 
+
+  // as_bad ("%s", str);
   const char *error = riscv_ip (str, &insn, &imm_expr, &imm_reloc);
+  // as_bad ("%d", insn.insn_opcode);
+  as_bad ("%d", imm_expr.X_add_number);
 
   if (error)
     {
