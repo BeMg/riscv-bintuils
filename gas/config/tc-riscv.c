@@ -1215,10 +1215,30 @@ enum vector_imm {
   sep_by_mask_imm10_type
 };
 
+int is_digit(char c) {
+  if (c <= '9' && c >= '0') {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 static void
 parse_vector_imm(expressionS *imm_expr, char* s, enum vector_imm v_imm) {
 
-  
+  char *start = s;
+  int number = 0;
+  as_bad("%s", s);
+  as_bad("%c", start[0]);
+  while(is_digit(start[0])) {
+    char c = start[0];
+    as_bad("1: %s, %d", start, number);
+    number = number * 10;
+    as_bad("2: %s, %d", start, number);
+    number = number + atoi(c);
+    as_bad("3: %s, %d", start, number);
+    start = start + 1;
+  }
 
   switch (v_imm) {
     case highest_imm5_type:
@@ -1712,6 +1732,7 @@ alu_op:
 	      /* If this value won't fit into a 16 bit offset, then go
 		 find a macro that will generate the 32 bit offset
 		 code pattern.  */
+     parse_vector_imm(imm_expr, s, highest_imm5_type);
 	      if (!my_getSmallExpression (imm_expr, imm_reloc, s, p))
 		{
 		  normalize_constant_expr (imm_expr);
