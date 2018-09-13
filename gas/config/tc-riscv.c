@@ -498,6 +498,7 @@ validate_riscv_insn (const struct riscv_opcode *opc)
   insn_t used_bits = opc->mask;
   int insn_width = 8 * riscv_insn_length (opc->match);
   insn_t required_bits = ~0ULL >> (64 - insn_width);
+  
 
   if ((used_bits & opc->match) != (opc->match & required_bits))
     {
@@ -545,6 +546,17 @@ validate_riscv_insn (const struct riscv_opcode *opc)
 	    return FALSE;
 	  }
 	break;
+      case 'V':
+        switch (c = *p++) {
+          case 'o':
+            used_bits |= ENCODE_ITYPE_IMM(-1U);
+            break;
+          default:
+            as_bad (_("internal: bad RISC-V opcode (unknown operand type `C%c'): %s %s"),
+		    c, opc->name, opc->args);
+            return FALSE;
+        }
+      break;
       case ',': break;
       case '(': break;
       case ')': break;
@@ -583,6 +595,7 @@ validate_riscv_insn (const struct riscv_opcode *opc)
 		c, opc->name, opc->args);
 	return FALSE;
       }
+
 #undef USE_BITS
   if (used_bits != required_bits)
     {
@@ -1224,7 +1237,7 @@ int is_digit(char c) {
 }
 
 static void
-parse_and_insert_vector_imm(expressionS *imm_expr, char* s, enum vector_imm v_imm) {
+parse_and_insert_vector_imm(expressionS *imm_expr, char* s) {
 
   char *start = s;
   int number = 0;
@@ -1235,19 +1248,9 @@ parse_and_insert_vector_imm(expressionS *imm_expr, char* s, enum vector_imm v_im
     number = number + (int)(start[0]-'0');
     start = start + 1;
   }
+  imm_expr->X_add_number = number;
 
   expr_end = start;
-
-  switch (v_imm) {
-    case highest_imm5_type:
-      imm_expr->insn_opcode |= (number << 27)
-      break;
-    case lowest_imm5_type:
-      break;
-    case sep_by_mask_imm10_type:
-      break;
-  }
-
 }
 
 /* This routine assembles an instruction into its binary format.  As a
@@ -1630,6 +1633,18 @@ rvc_lui:
 		}
 	      break;
 
+      // catch all operand for vector extension
+      case 'V':
+        switch(*++args) {
+          case 'o':
+            parse_and_insert_vector_imm(imm_expr, s);
+            ip->insn_opcode |= (imm_expr->X_add_number << 27);
+            break;
+        }
+
+        s = expr_end;
+        continue;
+
 	    case 'b':		/* Destination register.  */
 	    case 'f':		/* Source register.  */
 	    case 'h':		/* Target register.  */
@@ -1641,7 +1656,7 @@ rvc_lui:
 
 		  /* Now that we have assembled one operand, we use the args
 		     string to figure out where it goes in the instruction.  */
-		  switch (c)
+      switch (c)
 		    {
         case 'b':
 		      INSERT_OPERAND (RD, *ip, regno);
@@ -1811,9 +1826,10 @@ md_assemble (char *str)
 
 
   // as_bad ("%s", str);
+  // as_bad ("IN 0x%lx", insn.insn_opcode);
   const char *error = riscv_ip (str, &insn, &imm_expr, &imm_reloc);
-  // as_bad ("%d", insn.insn_opcode);
-  as_bad ("%d", imm_expr.X_add_number);
+  // as_bad ("IN 0x%lx", insn.insn_opcode);
+  // as_bad ("%d", imm_expr.X_add_number);
 
   if (error)
     {
