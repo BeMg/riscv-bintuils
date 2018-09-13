@@ -1228,17 +1228,15 @@ parse_vector_imm(expressionS *imm_expr, char* s, enum vector_imm v_imm) {
 
   char *start = s;
   int number = 0;
-  as_bad("%s", s);
-  as_bad("%c", start[0]);
+  int cnt_deep = 0;
+
   while(is_digit(start[0])) {
-    char c = start[0];
-    as_bad("1: %s, %d", start, number);
     number = number * 10;
-    as_bad("2: %s, %d", start, number);
-    number = number + atoi(c);
-    as_bad("3: %s, %d", start, number);
+    number = number + (int)(start[0]-'0');
     start = start + 1;
   }
+
+  expr_end = start;
 
   switch (v_imm) {
     case highest_imm5_type:
@@ -1742,8 +1740,8 @@ alu_op:
 		      || imm_expr->X_add_number < -(signed)RISCV_IMM_REACH/2)
 		    break;
 		}
-
 	      s = expr_end;
+        
 	      continue;
 
 	    case 'p':		/* PC-relative offset.  */
