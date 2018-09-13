@@ -1224,7 +1224,7 @@ int is_digit(char c) {
 }
 
 static void
-parse_vector_imm(expressionS *imm_expr, char* s, enum vector_imm v_imm) {
+parse_and_insert_vector_imm(expressionS *imm_expr, char* s, enum vector_imm v_imm) {
 
   char *start = s;
   int number = 0;
@@ -1240,6 +1240,7 @@ parse_vector_imm(expressionS *imm_expr, char* s, enum vector_imm v_imm) {
 
   switch (v_imm) {
     case highest_imm5_type:
+      imm_expr->insn_opcode |= (number << 27)
       break;
     case lowest_imm5_type:
       break;
@@ -1730,7 +1731,6 @@ alu_op:
 	      /* If this value won't fit into a 16 bit offset, then go
 		 find a macro that will generate the 32 bit offset
 		 code pattern.  */
-     parse_vector_imm(imm_expr, s, highest_imm5_type);
 	      if (!my_getSmallExpression (imm_expr, imm_reloc, s, p))
 		{
 		  normalize_constant_expr (imm_expr);
