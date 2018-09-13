@@ -547,16 +547,21 @@ validate_riscv_insn (const struct riscv_opcode *opc)
 	  }
 	break;
       case 'V':
+        // Now don't support mask feature
+        used_bits |= 0b11 << 25;
         switch (c = *p++) {
-          case 'o':
-            used_bits |= ENCODE_ITYPE_IMM(-1U);
-            break;
-          default:
-            as_bad (_("internal: bad RISC-V opcode (unknown operand type `C%c'): %s %s"),
+          case 'o': used_bits |= ENCODE_ITYPE_IMM(-1U); break;
+          case 'f':	USE_BITS (OP_MASK_RS1,		OP_SH_RS1);	break;
+          case 'h':	USE_BITS (OP_MASK_RS2,		OP_SH_RS2);	break;
+          case 'b':	USE_BITS (OP_MASK_RD,		OP_SH_RD);	break;
+          case 'l': USE_BITS (OP_MASK_RD,		OP_SH_RD);  break;
+          case 'r': used_bits |= ENCODE_ITYPE_IMM(-1U); break;
+          default:  
+            as_bad (_("internal: bad RISC-V opcode (unknown operand type `V%c'): %s %s"),
 		    c, opc->name, opc->args);
             return FALSE;
         }
-      break;
+        break;
       case ',': break;
       case '(': break;
       case ')': break;
@@ -595,6 +600,9 @@ validate_riscv_insn (const struct riscv_opcode *opc)
 		c, opc->name, opc->args);
 	return FALSE;
       }
+
+  // as_bad("R: %x%lu", required_bits);
+  // as_bad("U: %x%lu", used_bits);
 
 #undef USE_BITS
   if (used_bits != required_bits)
@@ -1640,6 +1648,40 @@ rvc_lui:
             parse_and_insert_vector_imm(imm_expr, s);
             ip->insn_opcode |= (imm_expr->X_add_number << 27);
             break;
+          case 'l':
+            parse_and_insert_vector_imm(imm_expr, s);
+            ip->insn_opcode |= ((imm_expr->X_add_number << 27) >> 20);
+            break;
+          case 'r':   // RS3
+          case 'b':		/* RD Destination register.  */ 
+          case 'f':		/* RS1 Source register.  */
+          case 'h':		/* RS2 Target register.  */
+          if (reg_lookup (&s, RCLASS_VPR, &regno))
+          {
+            c = *args;
+            if (*s == ' ')
+              ++s;
+
+            /* Now that we have assembled one operand, we use the args
+              string to figure out where it goes in the instruction.  */
+            switch (c)
+              {
+              case 'r':
+                ip->insn_opcode |= (regno << 27);
+                break;
+              case 'b':
+                INSERT_OPERAND (RD, *ip, regno);
+                break;
+              case 'f':
+                INSERT_OPERAND (RS1, *ip, regno);
+                break;
+              case 'h':
+                INSERT_OPERAND (RS2, *ip, regno);
+                break;
+              }
+            continue;
+          }
+          break;
         }
 
         s = expr_end;
