@@ -1,5 +1,5 @@
 /* RISC-V opcode list
-   Copyright (C) 2011-2017 Free Software Foundation, Inc.
+   Copyright (C) 2011-2018 Free Software Foundation, Inc.
 
    Contributed by Andrew Waterman (andrew@sifive.com).
    Based on MIPS target.
@@ -54,6 +54,22 @@ const char * const riscv_fpr_names_abi[NFPR] = {
   "fs0", "fs1", "fa0",  "fa1",  "fa2", "fa3", "fa4",  "fa5",
   "fa6", "fa7", "fs2",  "fs3",  "fs4", "fs5", "fs6",  "fs7",
   "fs8", "fs9", "fs10", "fs11", "ft8", "ft9", "ft10", "ft11"
+};
+
+const char * const riscv_vpr_names_numeric[NVPR] =
+{
+  "v0",   "v1",   "v2",   "v3",   "v4",   "v5",   "v6",   "v7",
+  "v8",   "v9",   "v10",  "v11",  "v12",  "v13",  "v14",  "v15",
+  "v16",  "v17",  "v18",  "v19",  "v20",  "v21",  "v22",  "v23",
+  "v24",  "v25",  "v26",  "v27",  "v28",  "v29",  "v30",  "v31"
+};
+
+const char * const riscv_vpr_names_abi[NVPR] =
+{
+  "v0",   "v1",   "v2",   "v3",   "v4",   "v5",   "v6",   "v7",
+  "v8",   "v9",   "v10",  "v11",  "v12",  "v13",  "v14",  "v15",
+  "v16",  "v17",  "v18",  "v19",  "v20",  "v21",  "v22",  "v23",
+  "v24",  "v25",  "v26",  "v27",  "v28",  "v29",  "v30",  "v31"
 };
 
 /* The order of overloaded instructions matters.  Label arguments and
@@ -729,6 +745,20 @@ const struct riscv_opcode riscv_opcodes[] =
 {"sfence.vma","I",   "s",    MATCH_SFENCE_VMA, MASK_SFENCE_VMA | MASK_RS2, match_opcode, INSN_ALIAS },
 {"sfence.vma","I",   "s,t",  MATCH_SFENCE_VMA, MASK_SFENCE_VMA, match_opcode, 0 },
 {"wfi",       "I",   "",     MATCH_WFI, MASK_WFI, match_opcode, 0 },
+
+/* Vector extension */
+
+{"vld",       "I", "Vb,Vo(s)",  MATCH_VLD, MASK_VLD, match_opcode, 0 },
+{"vsd",       "I", "Vr,Vl(s)", MATCH_VSD, MASK_VSD, match_opcode, 0},
+{"vfadd.s",   "I", "Vb,Vf,Vh",  MATCH_VFADD_S | MASK_RM, MASK_VFADD_S | MASK_RM, match_opcode, 0},
+{"vsetvl",    "I", "d,s",  MATCH_VSETVL, MASK_VSETVL, match_opcode, 0 },
+
+/* P vector SIMD */
+{"add16",   "I", "d,s,t", MATCH_ADD16, MASK_ADD16, match_opcode, 0},
+{"radd16",  "I", "d,s,t", MATCH_RADD16, MASK_RADD16, match_opcode, 0},
+{"uradd16", "I", "d,s,t", MATCH_URADD16, MASK_URADD16, match_opcode, 0},
+{"kadd16",  "I", "d,s,t", MATCH_KADD16, MASK_KADD16, match_opcode, 0},
+{"ukadd16", "I", "d,s,t", MATCH_UKADD16, MASK_UKADD16, match_opcode, 0},
 
 /* Terminate the list.  */
 {0, 0, 0, 0, 0, 0, 0}
