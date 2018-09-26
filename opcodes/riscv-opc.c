@@ -760,6 +760,18 @@ const struct riscv_opcode riscv_opcodes[] =
 {"kadd16",  "I", "d,s,t", MATCH_KADD16, MASK_KADD16, match_opcode, 0},
 {"ukadd16", "I", "d,s,t", MATCH_UKADD16, MASK_UKADD16, match_opcode, 0},
 
+{"sub16",   "I", "d,s,t", MATCH_SUB16, MASK_SUB16, match_opcode, 0},
+{"rsub16",  "I", "d,s,t", MATCH_RSUB16, MASK_RSUB16, match_opcode, 0},
+{"ursub16", "I", "d,s,t", MATCH_URSUB16, MASK_URSUB16, match_opcode, 0},
+{"ksub16",  "I", "d,s,t", MATCH_KSUB16, MASK_KSUB16, match_opcode, 0},
+{"uksub16", "I", "d,s,t", MATCH_UKSUB16, MASK_UKSUB16, match_opcode, 0},
+
+{"add8",    "I", "d,s,t", MATCH_ADD8, MASK_ADD8, match_opcode, 0},
+{"radd8",   "I", "d,s,t", MATCH_RADD8, MASK_RADD8, match_opcode, 0},
+{"uradd8",  "I", "d,s,t", MATCH_URADD8, MASK_URADD8, match_opcode, 0},
+{"kadd8",   "I", "d,s,t", MATCH_KADD8, MASK_KADD8, match_opcode, 0},
+{"ukadd8",  "I", "d,s,t", MATCH_UKADD8, MASK_UKADD8, match_opcode, 0},
+
 /* Terminate the list.  */
 {0, 0, 0, 0, 0, 0, 0}
 };
