@@ -766,11 +766,29 @@ const struct riscv_opcode riscv_opcodes[] =
 {"ksub16",  "I", "d,s,t", MATCH_KSUB16, MASK_KSUB16, match_opcode, 0},
 {"uksub16", "I", "d,s,t", MATCH_UKSUB16, MASK_UKSUB16, match_opcode, 0},
 
+{"crsa16",   "I", "d,s,t", MATCH_CRSA16, MASK_CRSA16, match_opcode, 0},
+{"rcrsa16",  "I", "d,s,t", MATCH_RCRSA16, MASK_RCRSA16, match_opcode, 0},
+{"urcrsa16", "I", "d,s,t", MATCH_URCRSA16, MASK_URCRSA16, match_opcode, 0},
+{"kcrsa16",  "I", "d,s,t", MATCH_KCRSA16, MASK_KCRSA16, match_opcode, 0},
+{"ukcrsa16", "I", "d,s,t", MATCH_UKCRSA16, MASK_UKCRSA16, match_opcode, 0},
+
+{"cras16",   "I", "d,s,t", MATCH_CRAS16, MASK_CRAS16, match_opcode, 0},
+{"rcras16",  "I", "d,s,t", MATCH_RCRAS16, MASK_RCRAS16, match_opcode, 0},
+{"urcras16", "I", "d,s,t", MATCH_URCRAS16, MASK_URCRAS16, match_opcode, 0},
+{"kcras16",  "I", "d,s,t", MATCH_KCRAS16, MASK_KCRAS16, match_opcode, 0},
+{"ukcras16", "I", "d,s,t", MATCH_UKCRAS16, MASK_UKCRAS16, match_opcode, 0},
+
 {"add8",    "I", "d,s,t", MATCH_ADD8, MASK_ADD8, match_opcode, 0},
 {"radd8",   "I", "d,s,t", MATCH_RADD8, MASK_RADD8, match_opcode, 0},
 {"uradd8",  "I", "d,s,t", MATCH_URADD8, MASK_URADD8, match_opcode, 0},
 {"kadd8",   "I", "d,s,t", MATCH_KADD8, MASK_KADD8, match_opcode, 0},
 {"ukadd8",  "I", "d,s,t", MATCH_UKADD8, MASK_UKADD8, match_opcode, 0},
+
+{"sub8",    "I", "d,s,t", MATCH_SUB8, MASK_SUB8, match_opcode, 0},
+{"rsub8",   "I", "d,s,t", MATCH_RSUB8, MASK_RSUB8, match_opcode, 0},
+{"ursub8",  "I", "d,s,t", MATCH_URSUB8, MASK_URSUB8, match_opcode, 0},
+{"ksub8",   "I", "d,s,t", MATCH_KSUB8, MASK_KSUB8, match_opcode, 0},
+{"uksub8",  "I", "d,s,t", MATCH_UKSUB8, MASK_UKSUB8, match_opcode, 0},
 
 /* Terminate the list.  */
 {0, 0, 0, 0, 0, 0, 0}
