@@ -56,6 +56,22 @@ const char * const riscv_fpr_names_abi[NFPR] = {
   "fs8", "fs9", "fs10", "fs11", "ft8", "ft9", "ft10", "ft11"
 };
 
+const char * const riscv_vpr_names_numeric[NVPR] =
+{
+  "v0",   "v1",   "v2",   "v3",   "v4",   "v5",   "v6",   "v7",
+  "v8",   "v9",   "v10",  "v11",  "v12",  "v13",  "v14",  "v15",
+  "v16",  "v17",  "v18",  "v19",  "v20",  "v21",  "v22",  "v23",
+  "v24",  "v25",  "v26",  "v27",  "v28",  "v29",  "v30",  "v31"
+};
+
+const char * const riscv_vpr_names_abi[NVPR] =
+{
+  "v0",   "v1",   "v2",   "v3",   "v4",   "v5",   "v6",   "v7",
+  "v8",   "v9",   "v10",  "v11",  "v12",  "v13",  "v14",  "v15",
+  "v16",  "v17",  "v18",  "v19",  "v20",  "v21",  "v22",  "v23",
+  "v24",  "v25",  "v26",  "v27",  "v28",  "v29",  "v30",  "v31"
+};
+
 /* The order of overloaded instructions matters.  Label arguments and
    register arguments look the same. Instructions that can have either
    for arguments must apear in the correct order in this table for the
@@ -123,13 +139,6 @@ match_c_add_with_hint (const struct riscv_opcode *op, insn_t insn)
 }
 
 static int
-match_c_nop (const struct riscv_opcode *op, insn_t insn)
-{
-  return (match_opcode (op, insn)
-	  && (((insn & MASK_RD) >> OP_SH_RD) == 0));
-}
-
-static int
 match_c_addi16sp (const struct riscv_opcode *op, insn_t insn)
 {
   return (match_opcode (op, insn)
@@ -160,39 +169,6 @@ static int
 match_c_addi4spn (const struct riscv_opcode *op, insn_t insn)
 {
   return match_opcode (op, insn) && EXTRACT_RVC_ADDI4SPN_IMM (insn) != 0;
-}
-
-/* This requires a non-zero shift.  A zero rd is a hint, so is allowed.  */
-
-static int
-match_c_slli (const struct riscv_opcode *op, insn_t insn)
-{
-  return match_opcode (op, insn) && EXTRACT_RVC_IMM (insn) != 0;
-}
-
-/* This requires a non-zero rd, and a non-zero shift.  */
-
-static int
-match_slli_as_c_slli (const struct riscv_opcode *op, insn_t insn)
-{
-  return match_rd_nonzero (op, insn) && EXTRACT_RVC_IMM (insn) != 0;
-}
-
-/* This requires a zero shift.  A zero rd is a hint, so is allowed.  */
-
-static int
-match_c_slli64 (const struct riscv_opcode *op, insn_t insn)
-{
-  return match_opcode (op, insn) && EXTRACT_RVC_IMM (insn) == 0;
-}
-
-/* This is used for both srli and srai.  This requires a non-zero shift.
-   A zero rd is not possible.  */
-
-static int
-match_srxi_as_c_srxi (const struct riscv_opcode *op, insn_t insn)
-{
-  return match_opcode (op, insn) && EXTRACT_RVC_IMM (insn) != 0;
 }
 
 const struct riscv_opcode riscv_opcodes[] =
@@ -265,7 +241,6 @@ const struct riscv_opcode riscv_opcodes[] =
 {"bne",       "I",   "s,t,p",  MATCH_BNE, MASK_BNE, match_opcode, 0 },
 {"addi",      "C",   "Ct,Cc,CK", MATCH_C_ADDI4SPN, MASK_C_ADDI4SPN, match_c_addi4spn, INSN_ALIAS },
 {"addi",      "C",   "d,CU,Cj",  MATCH_C_ADDI, MASK_C_ADDI, match_rd_nonzero, INSN_ALIAS },
-{"addi",      "C",   "d,CU,z",    MATCH_C_NOP, MASK_C_ADDI | MASK_RVC_IMM, match_c_nop, INSN_ALIAS },
 {"addi",      "C",   "Cc,Cc,CL", MATCH_C_ADDI16SP, MASK_C_ADDI16SP, match_c_addi16sp, INSN_ALIAS },
 {"addi",      "I",   "d,s,j",  MATCH_ADDI, MASK_ADDI, match_opcode, 0 },
 {"add",       "C",   "d,CU,CV",  MATCH_C_ADD, MASK_C_ADD, match_c_add, INSN_ALIAS },
@@ -278,24 +253,24 @@ const struct riscv_opcode riscv_opcodes[] =
    applied to an add instruction, for relaxation to use.  */
 {"add",       "I",   "d,s,t,0",MATCH_ADD, MASK_ADD, match_opcode, 0 },
 {"add",       "I",   "d,s,j",  MATCH_ADDI, MASK_ADDI, match_opcode, INSN_ALIAS },
-{"la",        "I",   "d,B",  0,    (int) M_LA,  match_never, INSN_MACRO },
-{"lla",       "I",   "d,B",  0,    (int) M_LLA,  match_never, INSN_MACRO },
+{"la",        "I",   "d,A",  0,    (int) M_LA,  match_never, INSN_MACRO },
+{"lla",       "I",   "d,A",  0,    (int) M_LLA,  match_never, INSN_MACRO },
 {"la.tls.gd", "I",   "d,A",  0,    (int) M_LA_TLS_GD,  match_never, INSN_MACRO },
 {"la.tls.ie", "I",   "d,A",  0,    (int) M_LA_TLS_IE,  match_never, INSN_MACRO },
 {"neg",       "I",   "d,t",  MATCH_SUB, MASK_SUB | MASK_RS1, match_opcode, INSN_ALIAS }, /* sub 0 */
-{"slli",      "C",   "d,CU,C>",  MATCH_C_SLLI, MASK_C_SLLI, match_slli_as_c_slli, INSN_ALIAS },
+{"slli",      "C",   "d,CU,C>",  MATCH_C_SLLI, MASK_C_SLLI, match_rd_nonzero, INSN_ALIAS },
 {"slli",      "I",   "d,s,>",   MATCH_SLLI, MASK_SLLI, match_opcode, 0 },
-{"sll",       "C",   "d,CU,C>",  MATCH_C_SLLI, MASK_C_SLLI, match_slli_as_c_slli, INSN_ALIAS },
+{"sll",       "C",   "d,CU,C>",  MATCH_C_SLLI, MASK_C_SLLI, match_rd_nonzero, INSN_ALIAS },
 {"sll",       "I",   "d,s,t",   MATCH_SLL, MASK_SLL, match_opcode, 0 },
 {"sll",       "I",   "d,s,>",   MATCH_SLLI, MASK_SLLI, match_opcode, INSN_ALIAS },
-{"srli",      "C",   "Cs,Cw,C>",  MATCH_C_SRLI, MASK_C_SRLI, match_srxi_as_c_srxi, INSN_ALIAS },
+{"srli",      "C",   "Cs,Cw,C>",  MATCH_C_SRLI, MASK_C_SRLI, match_opcode, INSN_ALIAS },
 {"srli",      "I",   "d,s,>",   MATCH_SRLI, MASK_SRLI, match_opcode, 0 },
-{"srl",       "C",   "Cs,Cw,C>",  MATCH_C_SRLI, MASK_C_SRLI, match_srxi_as_c_srxi, INSN_ALIAS },
+{"srl",       "C",   "Cs,Cw,C>",  MATCH_C_SRLI, MASK_C_SRLI, match_opcode, INSN_ALIAS },
 {"srl",       "I",   "d,s,t",   MATCH_SRL, MASK_SRL, match_opcode, 0 },
 {"srl",       "I",   "d,s,>",   MATCH_SRLI, MASK_SRLI, match_opcode, INSN_ALIAS },
-{"srai",      "C",   "Cs,Cw,C>",  MATCH_C_SRAI, MASK_C_SRAI, match_srxi_as_c_srxi, INSN_ALIAS },
+{"srai",      "C",   "Cs,Cw,C>",  MATCH_C_SRAI, MASK_C_SRAI, match_opcode, INSN_ALIAS },
 {"srai",      "I",   "d,s,>",   MATCH_SRAI, MASK_SRAI, match_opcode, 0 },
-{"sra",       "C",   "Cs,Cw,C>",  MATCH_C_SRAI, MASK_C_SRAI, match_srxi_as_c_srxi, INSN_ALIAS },
+{"sra",       "C",   "Cs,Cw,C>",  MATCH_C_SRAI, MASK_C_SRAI, match_opcode, INSN_ALIAS },
 {"sra",       "I",   "d,s,t",   MATCH_SRA, MASK_SRA, match_opcode, 0 },
 {"sra",       "I",   "d,s,>",   MATCH_SRAI, MASK_SRAI, match_opcode, INSN_ALIAS },
 {"sub",       "C",   "Cs,Cw,Ct",  MATCH_C_SUB, MASK_C_SUB, match_opcode, INSN_ALIAS },
@@ -719,12 +694,9 @@ const struct riscv_opcode riscv_opcodes[] =
 {"c.and",     "C",   "Cs,Ct",  MATCH_C_AND, MASK_C_AND, match_opcode, 0 },
 {"c.or",      "C",   "Cs,Ct",  MATCH_C_OR, MASK_C_OR, match_opcode, 0 },
 {"c.xor",     "C",   "Cs,Ct",  MATCH_C_XOR, MASK_C_XOR, match_opcode, 0 },
-{"c.slli",    "C",   "d,C>",  MATCH_C_SLLI, MASK_C_SLLI, match_c_slli, 0 },
-{"c.srli",    "C",   "Cs,C>",  MATCH_C_SRLI, MASK_C_SRLI, match_c_slli, 0 },
-{"c.srai",    "C",   "Cs,C>",  MATCH_C_SRAI, MASK_C_SRAI, match_c_slli, 0 },
-{"c.slli64",  "C",   "d",  MATCH_C_SLLI64, MASK_C_SLLI64, match_c_slli64, 0 },
-{"c.srli64",  "C",   "Cs",  MATCH_C_SRLI64, MASK_C_SRLI64, match_c_slli64, 0 },
-{"c.srai64",  "C",   "Cs",  MATCH_C_SRAI64, MASK_C_SRAI64, match_c_slli64, 0 },
+{"c.slli",    "C",   "d,C>",  MATCH_C_SLLI, MASK_C_SLLI, match_opcode, 0 },
+{"c.srli",    "C",   "Cs,C>",  MATCH_C_SRLI, MASK_C_SRLI, match_opcode, 0 },
+{"c.srai",    "C",   "Cs,C>",  MATCH_C_SRAI, MASK_C_SRAI, match_opcode, 0 },
 {"c.andi",    "C",   "Cs,Co",  MATCH_C_ANDI, MASK_C_ANDI, match_opcode, 0 },
 {"c.addiw",   "64C", "d,Co",  MATCH_C_ADDIW, MASK_C_ADDIW, match_rd_nonzero, 0 },
 {"c.addw",    "64C", "Cs,Ct",  MATCH_C_ADDW, MASK_C_ADDW, match_opcode, 0 },
@@ -774,80 +746,50 @@ const struct riscv_opcode riscv_opcodes[] =
 {"sfence.vma","I",   "s,t",  MATCH_SFENCE_VMA, MASK_SFENCE_VMA, match_opcode, 0 },
 {"wfi",       "I",   "",     MATCH_WFI, MASK_WFI, match_opcode, 0 },
 
-/* Terminate the list.  */
-{0, 0, 0, 0, 0, 0, 0}
-};
+/* Vector extension */
 
-/* Instruction format for .insn directive.  */
-const struct riscv_opcode riscv_insn_types[] =
-{
-/* name,  isa,          operands, match, mask,    match_func, pinfo.  */
-{"r",     "I",  "O4,F3,F7,d,s,t",     0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F7,D,s,t",     0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F7,d,S,t",     0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F7,D,S,t",     0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F7,d,s,T",     0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F7,D,s,T",     0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F7,d,S,T",     0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F7,D,S,T",     0,    0,  match_opcode, 0 },
+{"vld",       "I", "Vb,Vo(s)",  MATCH_VLD, MASK_VLD, match_opcode, 0 },
+{"vsd",       "I", "Vr,Vl(s)", MATCH_VSD, MASK_VSD, match_opcode, 0},
+{"vfadd.s",   "I", "Vb,Vf,Vh",  MATCH_VFADD_S | MASK_RM, MASK_VFADD_S | MASK_RM, match_opcode, 0},
+{"vsetvl",    "I", "d,s",  MATCH_VSETVL, MASK_VSETVL, match_opcode, 0 },
 
-{"r",     "I",  "O4,F3,F2,d,s,t,r",   0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F2,D,s,t,r",   0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F2,d,S,t,r",   0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F2,D,S,t,r",   0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F2,d,s,T,r",   0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F2,D,s,T,r",   0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F2,d,S,T,r",   0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F2,D,S,T,r",   0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F2,d,s,t,R",   0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F2,D,s,t,R",   0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F2,d,S,t,R",   0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F2,D,S,t,R",   0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F2,d,s,T,R",   0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F2,D,s,T,R",   0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F2,d,S,T,R",   0,    0,  match_opcode, 0 },
-{"r",     "I",  "O4,F3,F2,D,S,T,R",   0,    0,  match_opcode, 0 },
+/* P vector SIMD */
+{"add16",   "I", "d,s,t", MATCH_ADD16, MASK_ADD16, match_opcode, 0},
+{"radd16",  "I", "d,s,t", MATCH_RADD16, MASK_RADD16, match_opcode, 0},
+{"uradd16", "I", "d,s,t", MATCH_URADD16, MASK_URADD16, match_opcode, 0},
+{"kadd16",  "I", "d,s,t", MATCH_KADD16, MASK_KADD16, match_opcode, 0},
+{"ukadd16", "I", "d,s,t", MATCH_UKADD16, MASK_UKADD16, match_opcode, 0},
 
-{"i",     "I",  "O4,F3,d,s,j",        0,    0,  match_opcode, 0 },
-{"i",     "I",  "O4,F3,D,s,j",        0,    0,  match_opcode, 0 },
-{"i",     "I",  "O4,F3,d,S,j",        0,    0,  match_opcode, 0 },
-{"i",     "I",  "O4,F3,D,S,j",        0,    0,  match_opcode, 0 },
+{"sub16",   "I", "d,s,t", MATCH_SUB16, MASK_SUB16, match_opcode, 0},
+{"rsub16",  "I", "d,s,t", MATCH_RSUB16, MASK_RSUB16, match_opcode, 0},
+{"ursub16", "I", "d,s,t", MATCH_URSUB16, MASK_URSUB16, match_opcode, 0},
+{"ksub16",  "I", "d,s,t", MATCH_KSUB16, MASK_KSUB16, match_opcode, 0},
+{"uksub16", "I", "d,s,t", MATCH_UKSUB16, MASK_UKSUB16, match_opcode, 0},
 
-{"i",     "I",  "O4,F3,d,o(s)",       0,    0,  match_opcode, 0 },
-{"i",     "I",  "O4,F3,D,o(s)",       0,    0,  match_opcode, 0 },
+{"crsa16",   "I", "d,s,t", MATCH_CRSA16, MASK_CRSA16, match_opcode, 0},
+{"rcrsa16",  "I", "d,s,t", MATCH_RCRSA16, MASK_RCRSA16, match_opcode, 0},
+{"urcrsa16", "I", "d,s,t", MATCH_URCRSA16, MASK_URCRSA16, match_opcode, 0},
+{"kcrsa16",  "I", "d,s,t", MATCH_KCRSA16, MASK_KCRSA16, match_opcode, 0},
+{"ukcrsa16", "I", "d,s,t", MATCH_UKCRSA16, MASK_UKCRSA16, match_opcode, 0},
 
-{"s",     "I",  "O4,F3,d,o(s)",       0,    0,  match_opcode, 0 },
-{"s",     "I",  "O4,F3,D,o(s)",       0,    0,  match_opcode, 0 },
+{"cras16",   "I", "d,s,t", MATCH_CRAS16, MASK_CRAS16, match_opcode, 0},
+{"rcras16",  "I", "d,s,t", MATCH_RCRAS16, MASK_RCRAS16, match_opcode, 0},
+{"urcras16", "I", "d,s,t", MATCH_URCRAS16, MASK_URCRAS16, match_opcode, 0},
+{"kcras16",  "I", "d,s,t", MATCH_KCRAS16, MASK_KCRAS16, match_opcode, 0},
+{"ukcras16", "I", "d,s,t", MATCH_UKCRAS16, MASK_UKCRAS16, match_opcode, 0},
 
-{"sb",    "I",  "O4,F3,s,t,p",        0,    0,  match_opcode, 0 },
-{"sb",    "I",  "O4,F3,S,t,p",        0,    0,  match_opcode, 0 },
-{"sb",    "I",  "O4,F3,s,T,p",        0,    0,  match_opcode, 0 },
-{"sb",    "I",  "O4,F3,S,T,p",        0,    0,  match_opcode, 0 },
+{"add8",    "I", "d,s,t", MATCH_ADD8, MASK_ADD8, match_opcode, 0},
+{"radd8",   "I", "d,s,t", MATCH_RADD8, MASK_RADD8, match_opcode, 0},
+{"uradd8",  "I", "d,s,t", MATCH_URADD8, MASK_URADD8, match_opcode, 0},
+{"kadd8",   "I", "d,s,t", MATCH_KADD8, MASK_KADD8, match_opcode, 0},
+{"ukadd8",  "I", "d,s,t", MATCH_UKADD8, MASK_UKADD8, match_opcode, 0},
 
-{"sb",    "I",  "O4,F3,t,q(s)",       0,    0,  match_opcode, 0 },
-{"sb",    "I",  "O4,F3,T,q(s)",       0,    0,  match_opcode, 0 },
+{"sub8",    "I", "d,s,t", MATCH_SUB8, MASK_SUB8, match_opcode, 0},
+{"rsub8",   "I", "d,s,t", MATCH_RSUB8, MASK_RSUB8, match_opcode, 0},
+{"ursub8",  "I", "d,s,t", MATCH_URSUB8, MASK_URSUB8, match_opcode, 0},
+{"ksub8",   "I", "d,s,t", MATCH_KSUB8, MASK_KSUB8, match_opcode, 0},
+{"uksub8",  "I", "d,s,t", MATCH_UKSUB8, MASK_UKSUB8, match_opcode, 0},
 
-{"u",     "I",  "O4,d,u",             0,    0,  match_opcode, 0 },
-{"u",     "I",  "O4,D,u",             0,    0,  match_opcode, 0 },
-
-{"uj",    "I",  "O4,d,a",             0,    0,  match_opcode, 0 },
-{"uj",    "I",  "O4,D,a",             0,    0,  match_opcode, 0 },
-
-{"cr",    "C",  "O2,CF4,d,CV",        0,    0,  match_opcode, 0 },
-{"cr",    "C",  "O2,CF4,D,CV",        0,    0,  match_opcode, 0 },
-{"cr",    "C",  "O2,CF4,d,CT",        0,    0,  match_opcode, 0 },
-{"cr",    "C",  "O2,CF4,D,CT",        0,    0,  match_opcode, 0 },
-
-{"ci",    "C",  "O2,CF3,d,Co",        0,    0,  match_opcode, 0 },
-{"ci",    "C",  "O2,CF3,D,Co",        0,    0,  match_opcode, 0 },
-
-{"ciw",   "C",  "O2,CF3,Ct,C8",        0,    0,  match_opcode, 0 },
-{"ciw",   "C",  "O2,CF3,CD,C8",        0,    0,  match_opcode, 0 },
-
-{"cb",    "C",  "O2,CF3,Cs,Cp",       0,    0,  match_opcode, 0 },
-{"cb",    "C",  "O2,CF3,CS,Cp",       0,    0,  match_opcode, 0 },
-
-{"cj",    "C",  "O2,CF3,Ca",          0,    0,  match_opcode, 0 },
 /* Terminate the list.  */
 {0, 0, 0, 0, 0, 0, 0}
 };

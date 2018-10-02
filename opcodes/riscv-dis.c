@@ -64,8 +64,8 @@ parse_riscv_dis_option (const char *option)
     }
   else
     {
-      /* xgettext:c-format */
-      opcodes_error_handler (_("unrecognized disassembler option: %s"), option);
+      /* Invalid option.  */
+      fprintf (stderr, _("Unrecognized disassembler option: %s\n"), option);
     }
 }
 
