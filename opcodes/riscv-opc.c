@@ -72,6 +72,14 @@ const char * const riscv_vpr_names_abi[NVPR] =
   "v24",  "v25",  "v26",  "v27",  "v28",  "v29",  "v30",  "v31"
 };
 
+const char * const riscv_vspr_names_numeric[NVPR] =
+{
+  "v0.s",   "v1.s",   "v2.s",   "v3.s",   "v4.s",   "v5.s",   "v6.s",   "v7.s",
+  "v8.s",   "v9.s",   "v10.s",  "v11.s",  "v12.s",  "v13.s",  "v14.s",  "v15.s",
+  "v16.s",  "v17.s",  "v18.s",  "v19.s",  "v20.s",  "v21.s",  "v22.s",  "v23.s",
+  "v24.s",  "v25.s",  "v26.s",  "v27.s",  "v28.s",  "v29.s",  "v30.s",  "v31.s"
+};
+
 /* The order of overloaded instructions matters.  Label arguments and
    register arguments look the same. Instructions that can have either
    for arguments must apear in the correct order in this table for the
@@ -748,10 +756,53 @@ const struct riscv_opcode riscv_opcodes[] =
 
 /* Vector extension */
 
+{"vlh",       "I", "Vb,Vo(s)",  MATCH_VLH, MASK_VLH, match_opcode, 0 },
+{"vlw",       "I", "Vb,Vo(s)",  MATCH_VLW, MASK_VLW, match_opcode, 0 },
 {"vld",       "I", "Vb,Vo(s)",  MATCH_VLD, MASK_VLD, match_opcode, 0 },
+{"vsh",       "I", "Vr,Vl(s)", MATCH_VSH, MASK_VSH, match_opcode, 0},
+{"vsw",       "I", "Vr,Vl(s)", MATCH_VSW, MASK_VSW, match_opcode, 0},
 {"vsd",       "I", "Vr,Vl(s)", MATCH_VSD, MASK_VSD, match_opcode, 0},
-{"vfadd.s",   "I", "Vb,Vf,Vh",  MATCH_VFADD_S | MASK_RM, MASK_VFADD_S | MASK_RM, match_opcode, 0},
+
+{"vfadd.s",   "I", "Vb,Vf,Vh",  MATCH_VFADD_S | (0b01 << 12), MASK_VFADD_S | (0b01 << 12), match_opcode, 0},
+{"vfadd.s",   "I", "Vs,Vf,Vh",  MATCH_VFADD_S | (0b00 << 12), MASK_VFADD_S | (0b00 << 12), match_opcode, INSN_ALIAS},
+{"vfadd.s",   "I", "Vb,Vf,Vh",  MATCH_VFADD_S | (0b10 << 12), MASK_VFADD_S | (0b10 << 12), match_opcode, INSN_ALIAS},
+{"vfadd.s",   "I", "Vb,Vf,Vh",  MATCH_VFADD_S | (0b11 << 12), MASK_VFADD_S | (0b11 << 12), match_opcode, INSN_ALIAS},
+
+{"vfsub.s",   "I", "Vb,Vf,Vh",  MATCH_VFSUB_S , MASK_VFSUB_S , match_opcode, 0},
+{"vfmul.s",   "I", "Vb,Vf,Vh",  MATCH_VFMUL_S , MASK_VFMUL_S , match_opcode, 0},
+{"vfdiv.s",   "I", "Vb,Vf,Vh",  MATCH_VFDIV_S , MASK_VFDIV_S , match_opcode, 0},
+{"vfsqrt.s",  "I", "Vb,Vf",  MATCH_VFSQRT_S , MASK_VFSQRT_S , match_opcode, 0},
+{"vfmin.s",   "I", "Vb,Vf,Vh",  MATCH_VFMIN_S , MASK_VFMIN_S , match_opcode, 0},
+{"vfmax.s",   "I", "Vb,Vf,Vh",  MATCH_VFMAX_S , MASK_VFMAX_S , match_opcode, 0},
+{"vfeq.s",   "I", "Vb,Vf,Vh",  MATCH_VFEQ_S , MASK_VFEQ_S , match_opcode, 0},
+{"vflt.s",   "I", "Vb,Vf,Vh",  MATCH_VFLT_S , MASK_VFLT_S , match_opcode, 0},
+{"vfle.s",   "I", "Vb,Vf,Vh",  MATCH_VFLE_S , MASK_VFLE_S , match_opcode, 0},
+
+{"vfadd.d",   "I", "Vb,Vf,Vh",  MATCH_VFADD_D , MASK_VFADD_D , match_opcode, 0},
+{"vfsub.d",   "I", "Vb,Vf,Vh",  MATCH_VFSUB_D , MASK_VFSUB_D , match_opcode, 0},
+{"vfmul.d",   "I", "Vb,Vf,Vh",  MATCH_VFMUL_D , MASK_VFMUL_D , match_opcode, 0},
+{"vfdiv.d",   "I", "Vb,Vf,Vh",  MATCH_VFDIV_D , MASK_VFDIV_D , match_opcode, 0},
+{"vfsqrt.d",  "I", "Vb,Vf",  MATCH_VFSQRT_D , MASK_VFSQRT_D , match_opcode, 0},
+{"vfmin.d",   "I", "Vb,Vf,Vh",  MATCH_VFMIN_D , MASK_VFMIN_D , match_opcode, 0},
+{"vfmax.d",   "I", "Vb,Vf,Vh",  MATCH_VFMAX_D , MASK_VFMAX_D , match_opcode, 0},
+{"vfeq.d",   "I", "Vb,Vf,Vh",  MATCH_VFEQ_D , MASK_VFEQ_D , match_opcode, 0},
+{"vflt.d",   "I", "Vb,Vf,Vh",  MATCH_VFLT_D , MASK_VFLT_D , match_opcode, 0},
+{"vfle.d",   "I", "Vb,Vf,Vh",  MATCH_VFLE_D , MASK_VFLE_D , match_opcode, 0},
+
+{"vfadd.h",   "I", "Vb,Vf,Vh",  MATCH_VFADD_H , MASK_VFADD_H , match_opcode, 0},
+{"vfsub.h",   "I", "Vb,Vf,Vh",  MATCH_VFSUB_H , MASK_VFSUB_H , match_opcode, 0},
+{"vfmul.h",   "I", "Vb,Vf,Vh",  MATCH_VFMUL_H , MASK_VFMUL_H , match_opcode, 0},
+{"vfdiv.h",   "I", "Vb,Vf,Vh",  MATCH_VFDIV_H , MASK_VFDIV_H , match_opcode, 0},
+{"vfsqrt.h",  "I", "Vb,Vf",  MATCH_VFSQRT_H , MASK_VFSQRT_H , match_opcode, 0},
+{"vfmin.h",   "I", "Vb,Vf,Vh",  MATCH_VFMIN_H , MASK_VFMIN_H , match_opcode, 0},
+{"vfmax.h",   "I", "Vb,Vf,Vh",  MATCH_VFMAX_H , MASK_VFMAX_H , match_opcode, 0},
+{"vfeq.h",   "I", "Vb,Vf,Vh",  MATCH_VFEQ_H , MASK_VFEQ_H , match_opcode, 0},
+{"vflt.h",   "I", "Vb,Vf,Vh",  MATCH_VFLT_H , MASK_VFLT_H , match_opcode, 0},
+{"vfle.h",   "I", "Vb,Vf,Vh",  MATCH_VFLE_H , MASK_VFLE_H , match_opcode, 0},
+
 {"vsetvl",    "I", "d,s",  MATCH_VSETVL, MASK_VSETVL, match_opcode, 0 },
+{"vconfig",    "I", "j",  MATCH_VCONFIG, MASK_VCONFIG, match_opcode, 0 },
+
 
 /* P vector SIMD */
 {"add16",   "I", "d,s,t", MATCH_ADD16, MASK_ADD16, match_opcode, 0},

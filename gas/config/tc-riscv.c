@@ -401,6 +401,7 @@ enum reg_class
 {
   RCLASS_GPR,
   RCLASS_FPR,
+  RCLASS_VSPR,
   RCLASS_VPR,
   RCLASS_CSR,
   RCLASS_MAX
@@ -549,6 +550,7 @@ validate_riscv_insn (const struct riscv_opcode *opc)
       case 'V':
         // Now don't support mask feature
         used_bits |= 0b11 << 25;
+        used_bits |= 0b11 << 12;
         switch (c = *p++) {
           case 'o': used_bits |= ENCODE_ITYPE_IMM(-1U); break;
           case 'f':	USE_BITS (OP_MASK_RS1,		OP_SH_RS1);	break;
@@ -556,6 +558,7 @@ validate_riscv_insn (const struct riscv_opcode *opc)
           case 'b':	USE_BITS (OP_MASK_RD,		OP_SH_RD);	break;
           case 'l': USE_BITS (OP_MASK_RD,		OP_SH_RD);  break;
           case 'r': used_bits |= ENCODE_ITYPE_IMM(-1U); break;
+          case 's': USE_BITS (OP_MASK_RD,		OP_SH_RD);	break;
           default:  
             as_bad (_("internal: bad RISC-V opcode (unknown operand type `V%c'): %s %s"),
 		    c, opc->name, opc->args);
@@ -667,6 +670,7 @@ md_begin (void)
   hash_reg_names (RCLASS_FPR, riscv_fpr_names_numeric, NFPR);
   hash_reg_names (RCLASS_FPR, riscv_fpr_names_abi, NFPR);
   hash_reg_names (RCLASS_VPR, riscv_vpr_names_numeric, 32);
+  hash_reg_names (RCLASS_VSPR, riscv_vspr_names_numeric, 32);
 
 #define DECLARE_CSR(name, num) hash_reg_name (RCLASS_CSR, #name, num);
 #define DECLARE_CSR_ALIAS(name, num) DECLARE_CSR(name, num);
@@ -1646,11 +1650,11 @@ rvc_lui:
         switch(*++args) {
           case 'o':
             parse_and_insert_vector_imm(imm_expr, s);
-            ip->insn_opcode |= (imm_expr->X_add_number << 27);
+            ip->insn_opcode |= ((imm_expr->X_add_number&0b111) << 29);
             break;
           case 'l':
             parse_and_insert_vector_imm(imm_expr, s);
-            ip->insn_opcode |= ((imm_expr->X_add_number << 27) >> 20);
+            ip->insn_opcode |= ((imm_expr->X_add_number&0b111) << 9);
             break;
           case 'r':   // RS3
           case 'b':		/* RD Destination register.  */ 
@@ -1677,6 +1681,27 @@ rvc_lui:
                 break;
               case 'h':
                 INSERT_OPERAND (RS2, *ip, regno);
+                break;
+              }
+            continue;
+          }
+          break;
+          case 's':
+          if (reg_lookup (&s, RCLASS_VSPR, &regno))
+          {
+            c = *args;
+            if (*s == ' ')
+              ++s;
+
+            /* Now that we have assembled one operand, we use the args
+              string to figure out where it goes in the instruction.  */
+            switch (c)
+              {
+              case 's':
+                INSERT_OPERAND (RD, *ip, regno);
+                break;
+              default:
+                as_bad("ERROR IN case 's'");
                 break;
               }
             continue;

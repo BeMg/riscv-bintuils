@@ -340,6 +340,7 @@ extern const char * const riscv_gpr_names_abi[NGPR];
 extern const char * const riscv_fpr_names_numeric[NFPR];
 extern const char * const riscv_fpr_names_abi[NFPR];
 extern const char * const riscv_vpr_names_numeric[NVPR];
+extern const char * const riscv_vspr_names_numeric[NVPR];
 
 extern const struct riscv_opcode riscv_opcodes[];
 
