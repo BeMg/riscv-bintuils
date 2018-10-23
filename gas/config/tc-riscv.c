@@ -549,8 +549,8 @@ validate_riscv_insn (const struct riscv_opcode *opc)
 	break;
       case 'V':
         // Now don't support mask feature
-        used_bits |= 0b11 << 25;
-        used_bits |= 0b11 << 12;
+        used_bits |= (0b11 << 25);
+        used_bits |= (0b11 << 12);
         switch (c = *p++) {
           case 'o': used_bits |= ENCODE_ITYPE_IMM(-1U); break;
           case 'f':	USE_BITS (OP_MASK_RS1,		OP_SH_RS1);	break;
@@ -559,6 +559,9 @@ validate_riscv_insn (const struct riscv_opcode *opc)
           case 'l': USE_BITS (OP_MASK_RD,		OP_SH_RD);  break;
           case 'r': used_bits |= ENCODE_ITYPE_IMM(-1U); break;
           case 's': USE_BITS (OP_MASK_RD,		OP_SH_RD);	break;
+          case 'm': used_bits |= (0b11 << 12); break;
+          case 'n': used_bits |= (0b11 << 25); break;
+          case 'c': used_bits |= ENCODE_ITYPE_IMM(-1U); break;
           default:  
             as_bad (_("internal: bad RISC-V opcode (unknown operand type `V%c'): %s %s"),
 		    c, opc->name, opc->args);
@@ -604,8 +607,6 @@ validate_riscv_insn (const struct riscv_opcode *opc)
 	return FALSE;
       }
 
-  // as_bad("R: %x%lu", required_bits);
-  // as_bad("U: %x%lu", used_bits);
 
 #undef USE_BITS
   if (used_bits != required_bits)
@@ -1265,6 +1266,7 @@ parse_and_insert_vector_imm(expressionS *imm_expr, char* s) {
   expr_end = start;
 }
 
+
 /* This routine assembles an instruction into its binary format.  As a
    side effect, it sets the global variable imm_reloc to the type of
    relocation to do if one of the operands is an address expression.  */
@@ -1283,6 +1285,7 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,
   int argnum;
   const struct percent_op_match *p;
   const char *error = "unrecognized opcode";
+  char *start;
 
   /* Parse the name of the instruction.  Terminate the string if whitespace
      is found so that hash_find only sees the name part of the string.  */
@@ -1656,6 +1659,49 @@ rvc_lui:
             parse_and_insert_vector_imm(imm_expr, s);
             ip->insn_opcode |= ((imm_expr->X_add_number&0b111) << 9);
             break;
+          case 'm':
+            // as_bad("IN m");
+            start = s;
+            // TODO: check mask must be v0.
+            if(strncmp(start, "v0.t", 4) == 0 || strncmp(start, "v0.f", 4) == 0) 
+            {
+              if(start[3] == 't') {
+                ip->insn_opcode |= (0b11 << 12);
+              } else {
+                ip->insn_opcode |= (0b10 << 12);
+              }
+              ++start;
+              ++start;
+              ++start;
+              ++start;
+              expr_end = start;
+            } 
+            else 
+            {
+              as_bad("ERROR, bad case Vm, bad mask");
+            }
+            break;
+          case 'n':
+          start = s;
+            // TODO: check mask must be v0.
+            if(strncmp(start, "v0.t", 4) == 0 || strncmp(start, "v0.f", 4) == 0) 
+            {
+              if(start[3] == 't') {
+                ip->insn_opcode |= (0b11 << 25);
+              } else {
+                ip->insn_opcode |= (0b10 << 25);
+              }
+              ++start;
+              ++start;
+              ++start;
+              ++start;
+              expr_end = start;
+            } 
+            else 
+            {
+              as_bad("ERROR, bad case Vm, bad mask");
+            }
+            break;
           case 'r':   // RS3
           case 'b':		/* RD Destination register.  */ 
           case 'f':		/* RS1 Source register.  */
@@ -1674,12 +1720,16 @@ rvc_lui:
                 ip->insn_opcode |= (regno << 27);
                 break;
               case 'b':
+                // as_bad("IN b");
+                // as_bad("NOW: %s", s);
                 INSERT_OPERAND (RD, *ip, regno);
                 break;
               case 'f':
+                // as_bad("IN f");
                 INSERT_OPERAND (RS1, *ip, regno);
                 break;
               case 'h':
+                // as_bad("IN h");
                 INSERT_OPERAND (RS2, *ip, regno);
                 break;
               }
@@ -1687,6 +1737,7 @@ rvc_lui:
           }
           break;
           case 's':
+          case 'c':
           if (reg_lookup (&s, RCLASS_VSPR, &regno))
           {
             c = *args;
@@ -1699,6 +1750,9 @@ rvc_lui:
               {
               case 's':
                 INSERT_OPERAND (RD, *ip, regno);
+                break;
+              case 'c':
+                ip->insn_opcode |= (regno << 27);
                 break;
               default:
                 as_bad("ERROR IN case 's'");
