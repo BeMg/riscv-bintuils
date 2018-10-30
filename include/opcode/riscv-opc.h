@@ -669,7 +669,7 @@
 #define MASK_VCONFIG  0xfffff
 #define MATCH_VSETVL 0x500b
 #define MASK_VSETVL  0xfff0707f
-#define MATCH_ADD16 0x2b
+#define MATCH_ADD16 0x4000007f
 #define MASK_ADD16  0xfe00707f
 #define MATCH_RADD16 0x200002b
 #define MASK_RADD16  0xfe00707f
@@ -709,7 +709,7 @@
 #define MASK_KCRSA16  0xfe00707f
 #define MATCH_UKCRSA16 0x2600002b
 #define MASK_UKCRSA16  0xfe00707f
-#define MATCH_ADD8 0x102b
+#define MATCH_ADD8 0x4800007f
 #define MASK_ADD8  0xfe00707f
 #define MATCH_RADD8 0x200102b
 #define MASK_RADD8  0xfe00707f
