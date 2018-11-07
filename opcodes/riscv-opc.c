@@ -946,6 +946,17 @@ const struct riscv_opcode riscv_opcodes[] =
 {"ksub8",   "I", "d,s,t", MATCH_KSUB8, MASK_KSUB8, match_opcode, 0},
 {"uksub8",  "I", "d,s,t", MATCH_UKSUB8, MASK_UKSUB8, match_opcode, 0},
 
+{"smin16",  "I", "d,s,t", MATCH_SMIN16, MASK_SMIN16, match_opcode, 0},
+{"umin16",  "I", "d,s,t", MATCH_UMIN16, MASK_UMIN16, match_opcode, 0},
+{"smax16",  "I", "d,s,t", MATCH_SMAX16, MASK_SMAX16, match_opcode, 0},
+{"umax16",  "I", "d,s,t", MATCH_UMAX16, MASK_UMAX16, match_opcode, 0},
+
+{"smin8",  "I", "d,s,t", MATCH_SMIN8, MASK_SMIN8, match_opcode, 0},
+{"umin8",  "I", "d,s,t", MATCH_UMIN8, MASK_UMIN8, match_opcode, 0},
+{"smax8",  "I", "d,s,t", MATCH_SMAX8, MASK_SMAX8, match_opcode, 0},
+{"umax8",  "I", "d,s,t", MATCH_UMAX8, MASK_UMAX8, match_opcode, 0},
+
+
 /* Terminate the list.  */
 {0, 0, 0, 0, 0, 0, 0}
 };
