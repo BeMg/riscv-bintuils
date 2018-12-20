@@ -756,31 +756,35 @@ const struct riscv_opcode riscv_opcodes[] =
 
 /* Vector extension */
 
-{"vlh",       "I", "Vb,Vo(s)",  MATCH_VLH | (0b01 << 25), MASK_VLH | (0b11 << 25), match_opcode, 0 },
-{"vlh",       "I", "Vs,Vo(s)",  MATCH_VLH | (0b00 << 25), MASK_VLH | (0b11 << 25), match_opcode, INSN_ALIAS },
-{"vlh",       "I", "Vb,Vo(s),Vn",  MATCH_VLH | (0b10 << 25), MASK_VLH | (0b11 << 25), match_opcode, INSN_ALIAS },
-{"vlh",       "I", "Vb,Vo(s),Vn",  MATCH_VLH | (0b11 << 25), MASK_VLH | (0b11 << 25), match_opcode, INSN_ALIAS },
-{"vlw",       "I", "Vb,Vo(s)",  MATCH_VLW | (0b01 << 25), MASK_VLW | (0b11 << 25), match_opcode, 0 },
-{"vlw",       "I", "Vs,Vo(s)",  MATCH_VLW | (0b00 << 25), MASK_VLW | (0b11 << 25), match_opcode, INSN_ALIAS },
-{"vlw",       "I", "Vb,Vo(s),Vn",  MATCH_VLW | (0b10 << 25), MASK_VLW | (0b11 << 25), match_opcode, INSN_ALIAS },
-{"vlw",       "I", "Vb,Vo(s),Vn",  MATCH_VLW | (0b11 << 25), MASK_VLW | (0b11 << 25), match_opcode, INSN_ALIAS },
-{"vld",       "I", "Vb,Vo(s)",  MATCH_VLD | (0b01 << 25), MASK_VLD | (0b11 << 25), match_opcode, 0 },
-{"vld",       "I", "Vs,Vo(s)",  MATCH_VLD | (0b00 << 25), MASK_VLD | (0b11 << 25), match_opcode, INSN_ALIAS },
-{"vld",       "I", "Vb,Vo(s),Vn",  MATCH_VLD | (0b10 << 25), MASK_VLD | (0b11 << 25), match_opcode, INSN_ALIAS },
-{"vld",       "I", "Vb,Vo(s),Vn",  MATCH_VLD | (0b11 << 25), MASK_VLD | (0b11 << 25), match_opcode, INSN_ALIAS },
+// {"vlh",       "I", "Vb,Vo(s)",  MATCH_VLH | (0b01 << 25), MASK_VLH | (0b11 << 25), match_opcode, 0 },
+// {"vlh",       "I", "Vs,Vo(s)",  MATCH_VLH | (0b00 << 25), MASK_VLH | (0b11 << 25), match_opcode, INSN_ALIAS },
+// {"vlh",       "I", "Vb,Vo(s),Vn",  MATCH_VLH | (0b10 << 25), MASK_VLH | (0b11 << 25), match_opcode, INSN_ALIAS },
+// {"vlh",       "I", "Vb,Vo(s),Vn",  MATCH_VLH | (0b11 << 25), MASK_VLH | (0b11 << 25), match_opcode, INSN_ALIAS },
+// {"vlw",       "I", "Vb,Vo(s)",  MATCH_VLW | (0b01 << 25), MASK_VLW | (0b11 << 25), match_opcode, 0 },
+// {"vlw",       "I", "Vs,Vo(s)",  MATCH_VLW | (0b00 << 25), MASK_VLW | (0b11 << 25), match_opcode, INSN_ALIAS },
+// {"vlw",       "I", "Vb,Vo(s),Vn",  MATCH_VLW | (0b10 << 25), MASK_VLW | (0b11 << 25), match_opcode, INSN_ALIAS },
+// {"vlw",       "I", "Vb,Vo(s),Vn",  MATCH_VLW | (0b11 << 25), MASK_VLW | (0b11 << 25), match_opcode, INSN_ALIAS },
+// {"vld",       "I", "Vb,Vo(s)",  MATCH_VLD | (0b01 << 25), MASK_VLD | (0b11 << 25), match_opcode, 0 },
+// {"vld",       "I", "Vs,Vo(s)",  MATCH_VLD | (0b00 << 25), MASK_VLD | (0b11 << 25), match_opcode, INSN_ALIAS },
+// {"vld",       "I", "Vb,Vo(s),Vn",  MATCH_VLD | (0b10 << 25), MASK_VLD | (0b11 << 25), match_opcode, INSN_ALIAS },
+// {"vld",       "I", "Vb,Vo(s),Vn",  MATCH_VLD | (0b11 << 25), MASK_VLD | (0b11 << 25), match_opcode, INSN_ALIAS },
 
-{"vsh",       "I", "Vr,Vl(s)", MATCH_VSH | (0b01 << 25), MASK_VSH | (0b11 << 25), match_opcode, 0},
-{"vsh",       "I", "Vc,Vl(s)", MATCH_VSH | (0b00 << 25), MASK_VSH | (0b11 << 25), match_opcode, INSN_ALIAS},
-{"vsh",       "I", "Vr,Vl(s),Vn", MATCH_VSH | (0b10 << 25), MASK_VSH | (0b11 << 25), match_opcode, INSN_ALIAS},
-{"vsh",       "I", "Vr,Vl(s),Vn", MATCH_VSH | (0b11 << 25), MASK_VSH | (0b11 << 25), match_opcode, INSN_ALIAS},
-{"vsw",       "I", "Vr,Vl(s)", MATCH_VSW | (0b01 << 25), MASK_VSW | (0b11 << 25), match_opcode, 0},
-{"vsw",       "I", "Vc,Vl(s)", MATCH_VSW | (0b00 << 25), MASK_VSW | (0b11 << 25), match_opcode, INSN_ALIAS},
-{"vsw",       "I", "Vr,Vl(s),Vn", MATCH_VSW | (0b10 << 25), MASK_VSW | (0b11 << 25), match_opcode, INSN_ALIAS},
-{"vsw",       "I", "Vr,Vl(s),Vn", MATCH_VSW | (0b11 << 25), MASK_VSW | (0b11 << 25), match_opcode, INSN_ALIAS},
-{"vsd",       "I", "Vr,Vl(s)", MATCH_VSD | (0b01 << 25), MASK_VSD | (0b11 << 25), match_opcode, 0},
-{"vsd",       "I", "Vc,Vl(s)", MATCH_VSD | (0b00 << 25), MASK_VSD | (0b11 << 25), match_opcode, INSN_ALIAS},
-{"vsd",       "I", "Vr,Vl(s),Vn", MATCH_VSD | (0b10 << 25), MASK_VSD | (0b11 << 25), match_opcode, INSN_ALIAS},
-{"vsd",       "I", "Vr,Vl(s),Vn", MATCH_VSD | (0b11 << 25), MASK_VSD | (0b11 << 25), match_opcode, INSN_ALIAS},
+{"vlw",        "I", "Vb,o(s)", MATCH_VLW, MASK_VLW, match_opcode, 0 },
+{"vsw",        "I", "Vb,o(s)", MATCH_VSW, MASK_VSW, match_opcode, 0 },
+
+
+// {"vsh",       "I", "Vr,Vl(s)", MATCH_VSH | (0b01 << 25), MASK_VSH | (0b11 << 25), match_opcode, 0},
+// {"vsh",       "I", "Vc,Vl(s)", MATCH_VSH | (0b00 << 25), MASK_VSH | (0b11 << 25), match_opcode, INSN_ALIAS},
+// {"vsh",       "I", "Vr,Vl(s),Vn", MATCH_VSH | (0b10 << 25), MASK_VSH | (0b11 << 25), match_opcode, INSN_ALIAS},
+// {"vsh",       "I", "Vr,Vl(s),Vn", MATCH_VSH | (0b11 << 25), MASK_VSH | (0b11 << 25), match_opcode, INSN_ALIAS},
+// {"vsw",       "I", "Vr,Vl(s)", MATCH_VSW | (0b01 << 25), MASK_VSW | (0b11 << 25), match_opcode, 0},
+// {"vsw",       "I", "Vc,Vl(s)", MATCH_VSW | (0b00 << 25), MASK_VSW | (0b11 << 25), match_opcode, INSN_ALIAS},
+// {"vsw",       "I", "Vr,Vl(s),Vn", MATCH_VSW | (0b10 << 25), MASK_VSW | (0b11 << 25), match_opcode, INSN_ALIAS},
+// {"vsw",       "I", "Vr,Vl(s),Vn", MATCH_VSW | (0b11 << 25), MASK_VSW | (0b11 << 25), match_opcode, INSN_ALIAS},
+// {"vsd",       "I", "Vr,Vl(s)", MATCH_VSD | (0b01 << 25), MASK_VSD | (0b11 << 25), match_opcode, 0},
+// {"vsd",       "I", "Vc,Vl(s)", MATCH_VSD | (0b00 << 25), MASK_VSD | (0b11 << 25), match_opcode, INSN_ALIAS},
+// {"vsd",       "I", "Vr,Vl(s),Vn", MATCH_VSD | (0b10 << 25), MASK_VSD | (0b11 << 25), match_opcode, INSN_ALIAS},
+// {"vsd",       "I", "Vr,Vl(s),Vn", MATCH_VSD | (0b11 << 25), MASK_VSD | (0b11 << 25), match_opcode, INSN_ALIAS},
 
 {"vfadd.s",   "I", "Vb,Vf,Vh",  MATCH_VFADD_S | (0b01 << 12), MASK_VFADD_S | (0b11 << 12), match_opcode, 0},
 {"vfadd.s",   "I", "Vs,Vf,Vh",  MATCH_VFADD_S | (0b00 << 12), MASK_VFADD_S | (0b11 << 12), match_opcode, INSN_ALIAS},
@@ -908,6 +912,10 @@ const struct riscv_opcode riscv_opcodes[] =
 {"vsetvl",    "I", "d,s",  MATCH_VSETVL, MASK_VSETVL, match_opcode, 0 },
 {"vconfig",   "I", "j",  MATCH_VCONFIG, MASK_VCONFIG, match_opcode, 0 },
 
+// {"vmv.x.v", "d,Vf,t",  MATCH_VMV_X_V, MASK_VMV_X_V, match_opcode, 0 },
+// {"vmv.v.x", "Vb,s,t",  MATCH_VMV_V_X, MASK_VMV_V_X, match_opcode, 0 },
+// {"vmv.s.v", "Vb,Vf,t",  MATCH_VMV_S_V, MASK_VMV_S_V, match_opcode, 0 },
+// {"vmv.v.s", "Vb,Vf,t",  MATCH_VMV_V_S, MASK_VMV_V_S, match_opcode, 0 },
 
 /* P vector SIMD */
 {"add16",   "I", "d,s,t", MATCH_ADD16, MASK_ADD16, match_opcode, 0},
@@ -965,6 +973,16 @@ const struct riscv_opcode riscv_opcodes[] =
 {"pkbt16",  "I", "d,s,t", MATCH_PKBT16, MASK_PKBT16, match_opcode, 0},
 {"pktb16",  "I", "d,s,t", MATCH_PKTB16, MASK_PKTB16, match_opcode, 0},
 {"pktt16",  "I", "d,s,t", MATCH_PKTT16, MASK_PKTT16, match_opcode, 0},
+
+{"ksll8",  "I", "d,s,t", MATCH_KSLL8, MASK_KSLL8, match_opcode, 0},
+{"ksll16",  "I", "d,s,t", MATCH_KSLL16, MASK_KSLL16, match_opcode, 0},
+
+{"setmat1",  "I", "s,t",   MATCH_SETMAT1, MASK_SETMAT1, match_opcode, 0},
+{"setmat2",  "I", "s,t",   MATCH_SETMAT2, MASK_SETMAT2, match_opcode, 0},
+{"matmul",   "I", "d,s,t", MATCH_MATMUL,  MASK_MATMUL,  match_opcode, 0},
+{"setvecl",  "I", "d",     MATCH_SETVECL, MASK_SETVECL, match_opcode, 0},
+{"fvecadd",  "I", "d,s,t", MATCH_FVECADD, MASK_FVECADD, match_opcode, 0},
+{"sigmoid",  "I", "d,s",   MATCH_SIGMOID, MASK_SIGMOID, match_opcode, 0},
 
 
 /* Terminate the list.  */

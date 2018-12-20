@@ -502,9 +502,8 @@ validate_riscv_insn (const struct riscv_opcode *opc)
   
   if ((used_bits & opc->match) != (opc->match & required_bits))
     {
-      as_bad ("%x:%x:%x", used_bits, opc->match, required_bits);
-      as_bad ("%x", opc->match&0x3);
-      as_bad (_("internal: bad RISC-V opcode (mask error): %s %s"),
+      as_bad("%x:%x:%x", opc->mask, opc->match, required_bits);
+      as_bad ("internal: bad RISC-V opcode (mask error): %s %s",
 	      opc->name, opc->args);
       return FALSE;
     }
