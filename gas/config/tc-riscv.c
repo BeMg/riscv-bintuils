@@ -402,6 +402,7 @@ enum reg_class
   RCLASS_GPR,
   RCLASS_FPR,
   RCLASS_VSPR,
+  RCLASS_VMR,
   RCLASS_VPR,
   RCLASS_CSR,
   RCLASS_MAX
@@ -553,6 +554,7 @@ validate_riscv_insn (const struct riscv_opcode *opc)
         used_bits |= (0b11 << 12);
         switch (c = *p++) {
           case 'o': used_bits |= ENCODE_ITYPE_IMM(-1U); break;
+          case 'i': used_bits |= (0b11111 << 20); break;
           case 'f':	USE_BITS (OP_MASK_RS1,		OP_SH_RS1);	break;
           case 'h':	USE_BITS (OP_MASK_RS2,		OP_SH_RS2);	break;
           case 'b':	USE_BITS (OP_MASK_RD,		OP_SH_RD);	break;
@@ -672,6 +674,7 @@ md_begin (void)
   hash_reg_names (RCLASS_FPR, riscv_fpr_names_abi, NFPR);
   hash_reg_names (RCLASS_VPR, riscv_vpr_names_numeric, 32);
   hash_reg_names (RCLASS_VSPR, riscv_vspr_names_numeric, 32);
+  hash_reg_names (RCLASS_VMR, riscv_vm_names_abi, NVMR);
 
 #define DECLARE_CSR(name, num) hash_reg_name (RCLASS_CSR, #name, num);
 #define DECLARE_CSR_ALIAS(name, num) DECLARE_CSR(name, num);
@@ -1659,27 +1662,9 @@ rvc_lui:
             parse_and_insert_vector_imm(imm_expr, s);
             ip->insn_opcode |= ((imm_expr->X_add_number&0b111) << 9);
             break;
-          case 'm':
-            // as_bad("IN m");
-            start = s;
-            // TODO: check mask must be v0.
-            if(strncmp(start, "v0.t", 4) == 0 || strncmp(start, "v0.f", 4) == 0) 
-            {
-              if(start[3] == 't') {
-                ip->insn_opcode |= (0b11 << 12);
-              } else {
-                ip->insn_opcode |= (0b10 << 12);
-              }
-              ++start;
-              ++start;
-              ++start;
-              ++start;
-              expr_end = start;
-            } 
-            else 
-            {
-              as_bad("ERROR, bad case Vm, bad mask");
-            }
+          case 'i':
+            parse_and_insert_vector_imm(imm_expr, s);
+            ip->insn_opcode |= ((imm_expr->X_add_number&0b11111) << 20);
             break;
           case 'n':
           start = s;

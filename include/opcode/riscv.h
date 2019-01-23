@@ -248,6 +248,7 @@ static const char * const riscv_pred_succ[16] =
 #define NGPR 32
 #define NFPR 32
 #define NVPR 32
+#define NVMR 2
 
 /* Replace bits MASK << SHIFT of STRUCT with the equivalent bits in
    VALUE << SHIFT.  VALUE is evaluated exactly once.  */
@@ -343,6 +344,8 @@ extern const char * const riscv_fpr_names_numeric[NFPR];
 extern const char * const riscv_fpr_names_abi[NFPR];
 extern const char * const riscv_vpr_names_numeric[NVPR];
 extern const char * const riscv_vspr_names_numeric[NVPR];
+extern const char * const riscv_vm_names_abi[NVMR];
+
 
 extern const struct riscv_opcode riscv_opcodes[];
 

@@ -72,6 +72,11 @@ const char * const riscv_vpr_names_abi[NVPR] =
   "v24",  "v25",  "v26",  "v27",  "v28",  "v29",  "v30",  "v31"
 };
 
+const char * const riscv_vm_names_abi[NVMR] =
+{
+  "v0.t", "v0.f"
+};
+
 const char * const riscv_vspr_names_numeric[NVPR] =
 {
   "v0.s",   "v1.s",   "v2.s",   "v3.s",   "v4.s",   "v5.s",   "v6.s",   "v7.s",
@@ -755,6 +760,15 @@ const struct riscv_opcode riscv_opcodes[] =
 {"wfi",       "I",   "",     MATCH_WFI, MASK_WFI, match_opcode, 0 },
 
 /* Vector extension */
+
+{"vadd.vv",   "I", "Vb,Vf,Vh,Vn",  MATCH_VADD_VV, MASK_VADD_VV, match_opcode, 0 },
+{"vadd.vv",   "I", "Vb,Vf,Vh",  MATCH_VADD_VV | (0b11 << 25), MASK_VADD_VV | (0b11 << 25), match_opcode, 0 },
+{"vadd.vs",   "I", "Vb,Vf,Vh,Vn",  MATCH_VADD_VS, MASK_VADD_VS, match_opcode, 0 },
+{"vadd.vs",   "I", "Vb,Vf,Vh",  MATCH_VADD_VS | (0b11 << 25), MASK_VADD_VS | (0b11 << 25), match_opcode, 0 },
+{"vadd.vi",   "I", "Vb,Vf,Vi,Vn",  MATCH_VADD_VI, MASK_VADD_VI, match_opcode, 0 },
+{"vadd.vi",   "I", "Vb,Vf,Vi",  MATCH_VADD_VI | (0b11 << 25), MASK_VADD_VI | (0b11 << 25), match_opcode, 0 },
+
+
 
 {"vsetvl",    "I", "d,s",  MATCH_VSETVL, MASK_VSETVL, match_opcode, 0 },
 {"vconfig",   "I", "j",  MATCH_VCONFIG, MASK_VCONFIG, match_opcode, 0 },
