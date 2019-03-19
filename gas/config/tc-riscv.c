@@ -501,6 +501,7 @@ validate_riscv_insn (const struct riscv_opcode *opc)
   int insn_width = 8 * riscv_insn_length (opc->match);
   insn_t required_bits = ~0ULL >> (64 - insn_width);
   
+
   if ((used_bits & opc->match) != (opc->match & required_bits))
     {
       as_bad("%x:%x:%x", opc->mask, opc->match, required_bits);
@@ -550,19 +551,18 @@ validate_riscv_insn (const struct riscv_opcode *opc)
 	break;
       case 'V':
         // Now don't support mask feature
-        used_bits |= (0b11 << 25);
-        used_bits |= (0b11 << 12);
         switch (c = *p++) {
-          case 'o': used_bits |= ENCODE_ITYPE_IMM(-1U); break;
-          case 'i': used_bits |= (0b11111 << 20); break;
+          case 'o': used_bits |= (0b11111111111 << 20);  break;
+          case 'i': used_bits |= (0b11111 << 15); break;
           case 'f':	USE_BITS (OP_MASK_RS1,		OP_SH_RS1);	break;
           case 'h':	USE_BITS (OP_MASK_RS2,		OP_SH_RS2);	break;
+      	  case 'u':	USE_BITS (OP_MASK_RS3,		OP_SH_RS3);	break;
           case 'b':	USE_BITS (OP_MASK_RD,		OP_SH_RD);	break;
           case 'l': USE_BITS (OP_MASK_RD,		OP_SH_RD);  break;
           case 'r': used_bits |= ENCODE_ITYPE_IMM(-1U); break;
           case 's': USE_BITS (OP_MASK_RD,		OP_SH_RD);	break;
-          case 'm': used_bits |= (0b11 << 12); break;
-          case 'n': used_bits |= (0b11 << 25); break;
+          case 'm': used_bits |= ((0b11111 << 20) | (0b11 << 10)); break;
+          case 'n': used_bits |= (0b1 << 25); break;
           case 'c': used_bits |= ENCODE_ITYPE_IMM(-1U); break;
           default:  
             as_bad (_("internal: bad RISC-V opcode (unknown operand type `V%c'): %s %s"),
@@ -611,8 +611,11 @@ validate_riscv_insn (const struct riscv_opcode *opc)
 
 
 #undef USE_BITS
+  used_bits     = used_bits     & 0xffffffff;
+  required_bits = required_bits & 0xffffffff;	
   if (used_bits != required_bits)
     {
+      as_bad("0x%lx, 0x%lx", used_bits, required_bits);
       as_bad (_("internal: bad RISC-V opcode (bits 0x%lx undefined): %s %s"),
 	      ~(unsigned long)(used_bits & required_bits),
 	      opc->name, opc->args);
@@ -1656,7 +1659,12 @@ rvc_lui:
         switch(*++args) {
           case 'o':
             parse_and_insert_vector_imm(imm_expr, s);
-            ip->insn_opcode |= ((imm_expr->X_add_number&0b111) << 29);
+            ip->insn_opcode |= ((imm_expr->X_add_number&0b11111111111) << 20);
+            break;
+          case 'm':
+            parse_and_insert_vector_imm(imm_expr, s);
+            ip->insn_opcode |= ((imm_expr->X_add_number&0b11111) << 20);
+            ip->insn_opcode |= (((imm_expr->X_add_number >> 5)&0b11) << 10);
             break;
           case 'l':
             parse_and_insert_vector_imm(imm_expr, s);
@@ -1664,7 +1672,7 @@ rvc_lui:
             break;
           case 'i':
             parse_and_insert_vector_imm(imm_expr, s);
-            ip->insn_opcode |= ((imm_expr->X_add_number&0b11111) << 20);
+            ip->insn_opcode |= ((imm_expr->X_add_number&0b11111) << 15);
             break;
           case 'n':
           start = s;
@@ -1672,9 +1680,9 @@ rvc_lui:
             if(strncmp(start, "v0.t", 4) == 0 || strncmp(start, "v0.f", 4) == 0) 
             {
               if(start[3] == 't') {
-                ip->insn_opcode |= (0b11 << 25);
+                ip->insn_opcode |= (0b1 << 25);
               } else {
-                ip->insn_opcode |= (0b10 << 25);
+                ip->insn_opcode |= (0b0 << 25);
               }
               ++start;
               ++start;
@@ -1691,6 +1699,7 @@ rvc_lui:
           case 'b':		/* RD Destination register.  */ 
           case 'f':		/* RS1 Source register.  */
           case 'h':		/* RS2 Target register.  */
+	  case 'u':
           if (reg_lookup (&s, RCLASS_VPR, &regno))
           {
             c = *args;
@@ -1717,6 +1726,9 @@ rvc_lui:
                 // as_bad("IN h");
                 INSERT_OPERAND (RS2, *ip, regno);
                 break;
+              case 'u':
+		INSERT_OPERAND (RS3, *ip, regno);	
+		break;
               }
             continue;
           }
@@ -1764,7 +1776,7 @@ rvc_lui:
 		     string to figure out where it goes in the instruction.  */
       switch (c)
 		    {
-        case 'b':
+        	    case 'b':
 		      INSERT_OPERAND (RD, *ip, regno);
 		      break;
 		    case 'f':
